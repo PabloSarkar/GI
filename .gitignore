@@ -1,0 +1,12 @@
+# dependencies (none are required to run the game)
+node_modules/
+
+# generated screenshots from the integration test
+test/*.png
+test/shot-*.png
+test/show-*.png
+
+# misc
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>GLADIVS IMPERIVM — Battle Tactics of Rome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- ======================= IN-BATTLE / DEPLOY HUD ===================== -->
+  <div id="hud" class="hidden">
+    <div class="hud-left">
+      <div class="eagle" title="S.P.Q.R.">SPQR</div>
+      <div class="titles">
+        <div id="level-name" class="level-name">—</div>
+        <div id="level-place" class="level-place">—</div>
+      </div>
+    </div>
+    <div class="hud-right">
+      <div id="purse" class="purse" title="Denarii remaining">
+        <span class="coin">●</span><span id="denarii">0</span><span class="purse-sub">denarii</span>
+      </div>
+      <button id="btn-intel" class="icon-btn" title="Enemy intelligence">⚔</button>
+      <button id="btn-mute" class="icon-btn" title="Sound on/off">♪</button>
+      <button id="btn-help" class="icon-btn" title="How to play">?</button>
+      <button id="btn-menu" class="icon-btn" title="Abandon to map">≡</button>
+    </div>
+  </div>
+
+  <!-- =========================== ARMY BARS ============================= -->
+  <div id="bars" class="hidden">
+    <div class="bar-row">
+      <span class="bar-label rome">ROMA</span>
+      <div class="bar-track"><div id="bar-rome" class="bar-fill rome-fill"></div></div>
+      <span id="cnt-rome" class="bar-count">0</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label foe">HOSTES</span>
+      <div class="bar-track"><div id="bar-foe" class="bar-fill foe-fill"></div></div>
+      <span id="cnt-foe" class="bar-count">0</span>
+    </div>
+  </div>
+
+  <!-- ========================== UNIT ROSTER =========================== -->
+  <div id="roster" class="panel hidden">
+    <div class="panel-head">LEGIO — Order of Battle</div>
+    <div id="roster-list"></div>
+    <div class="roster-foot">
+      <button id="btn-clear" class="wood-btn small">Disband All</button>
+      <button id="btn-auto" class="wood-btn small">Auto-Array</button>
+    </div>
+  </div>
+
+  <!-- ========================= UNIT INSPECTOR ========================= -->
+  <div id="inspector" class="panel hidden">
+    <div id="insp-name" class="insp-name">—</div>
+    <div id="insp-stats" class="insp-stats"></div>
+    <div id="insp-desc" class="insp-desc"></div>
+    <button id="btn-disband" class="wood-btn small danger hidden">Disband (refund)</button>
+  </div>
+
+  <!-- ========================= BOTTOM CONTROLS ======================== -->
+  <div id="controls" class="hidden">
+    <div id="deploy-controls" class="ctl-group">
+      <div id="deploy-tip" class="deploy-tip">Choose a unit, then <b>drag</b> on the field to array your ranks.</div>
+      <button id="btn-engage" class="bronze-btn big">ENGAGE ⚔</button>
+    </div>
+    <div id="battle-controls" class="ctl-group hidden">
+      <button id="btn-playpause" class="bronze-btn">❚❚ Pause</button>
+      <div class="speed-set">
+        <button class="spd wood-btn" data-spd="1">1×</button>
+        <button class="spd wood-btn active" data-spd="2">2×</button>
+        <button class="spd wood-btn" data-spd="3">3×</button>
+      </div>
+      <button id="btn-restart" class="wood-btn">↺ Reset Battle</button>
+      <button id="btn-redeploy" class="wood-btn">◀ Redeploy</button>
+    </div>
+  </div>
+
+  <!-- ============================ INTEL =============================== -->
+  <div id="intel" class="panel overlay-panel hidden">
+    <div class="panel-head">Enemy Intelligence <button id="intel-close" class="x">✕</button></div>
+    <div id="intel-body"></div>
+  </div>
+
+  <!-- ========================= TITLE SCREEN ========================== -->
+  <div id="title-screen" class="screen">
+    <div class="title-vignette"></div>
+    <div class="title-inner">
+      <div class="laurel">❧</div>
+      <h1 class="game-title">GLADIVS<span>IMPERIVM</span></h1>
+      <div class="game-sub">— BATTLE TACTICS OF ROME —</div>
+      <p class="title-blurb">Command the legions of the Republic. Array your maniples, time your charge,
+        and hold the line as the world hurls itself upon your shields.</p>
+      <div class="title-btns">
+        <button id="btn-campaign" class="bronze-btn big">Begin the Campaign</button>
+        <button id="btn-sandbox" class="wood-btn big">Custom Battle</button>
+        <button id="btn-howto" class="wood-btn big">How to Play</button>
+      </div>
+      <div class="title-foot">An original battle-tactics game · rendered entirely in code</div>
+    </div>
+  </div>
+
+  <!-- ========================= LEVEL SELECT ========================== -->
+  <div id="level-select" class="screen hidden">
+    <div class="ls-inner">
+      <h2 class="screen-title">The Campaign of Rome</h2>
+      <div id="ls-grid" class="ls-grid"></div>
+      <button id="ls-back" class="wood-btn">◀ Back</button>
+    </div>
+  </div>
+
+  <!-- ============================ SANDBOX ============================ -->
+  <div id="sandbox" class="screen hidden">
+    <div class="ls-inner">
+      <h2 class="screen-title">Custom Battle</h2>
+      <p class="sandbox-help">Compose the enemy host, choose your purse, then take the field.</p>
+      <div id="sb-foes" class="sb-foes"></div>
+      <div class="sb-row">
+        <label>Your purse (denarii): <input id="sb-budget" type="range" min="600" max="6000" step="100" value="2200"></label>
+        <span id="sb-budget-val">2200</span>
+      </div>
+      <div class="sb-btns">
+        <button id="sb-start" class="bronze-btn big">To the Field ⚔</button>
+        <button id="sb-back" class="wood-btn">◀ Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ RESULT ============================= -->
+  <div id="result" class="screen hidden">
+    <div class="result-inner">
+      <h2 id="result-title" class="result-title">VICTORIA</h2>
+      <div id="result-sub" class="result-sub"></div>
+      <div id="result-stats" class="result-stats"></div>
+      <div class="result-btns">
+        <button id="res-next" class="bronze-btn big">Next Battle ▶</button>
+        <button id="res-retry" class="wood-btn big">Try Again ↺</button>
+        <button id="res-menu" class="wood-btn big">Campaign Map</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================= HELP ============================== -->
+  <div id="help" class="screen hidden">
+    <div class="help-inner">
+      <h2 class="screen-title">The Art of War</h2>
+      <div class="help-cols" id="help-body"></div>
+      <button id="help-close" class="bronze-btn">Understood</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <div id="loading" class="loading">Mustering the legions…</div>
+
+  <!-- engine + game (plain script tags: runs from file:// with no build step) -->
+  <script src="js/utils.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/units.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/soldier.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

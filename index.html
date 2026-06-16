@@ -6,8 +6,17 @@
 <title>GLADIVS IMPERIVM — Battle Tactics of Rome</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="css/style.css" />
+<style>
+/* Critical inline CSS — ensures layout and hidden/show logic even if external CSS fails */
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;background:#1b160d;}
+#game{position:fixed;inset:0;left:0;top:0;width:100vw;height:100vh;display:block;}
+.hidden{display:none !important;}
+.screen{position:fixed;inset:0;left:0;top:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;justify-content:center;background:rgba(15,10,4,0.93);}
+#screen-title{background:#0f0a04;}
+</style>
 </head>
 <body>
   <canvas id="game"></canvas>
